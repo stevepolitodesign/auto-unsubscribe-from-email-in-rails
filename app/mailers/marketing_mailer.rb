@@ -6,8 +6,10 @@ class MarketingMailer < ApplicationMailer
   #   en.marketing_mailer.promotion.subject
   #
   def promotion
-    @greeting = "Hi"
+    @user     = params[:user]
+    @message  = params[:message]
+    @subject  = params[:subject]
 
-    mail to: "to@example.org"
+    mail to: @user.email, subject: @subject
   end
 end
