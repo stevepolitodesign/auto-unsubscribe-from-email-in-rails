@@ -8,6 +8,6 @@ class CreateMailerSubscriptions < ActiveRecord::Migration[6.1]
       t.timestamps
     end
 
-    add_index :mailer_subscriptions, :user, :mailer 
+    add_index :mailer_subscriptions, [:user, :mailer], unique: true
   end
 end
