@@ -8,9 +8,9 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
     )
     @mailer_subscription.subscribed = false
     if @mailer_subscription.save
-      render plain: "You've successfully unsubscribed from this email."
+      @message = "You've successfully unsubscribed from this email."
     else
-      render plain: "There was an error"
+      @message = "There was an error"
     end
   end
 
@@ -18,7 +18,7 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
 
     def set_user
       @user = GlobalID::Locator.locate_signed params[:id]
-      render plain: "There was an error" if @user.nil?
+      @message =  "There was an error" if @user.nil?
     end
 
 end
