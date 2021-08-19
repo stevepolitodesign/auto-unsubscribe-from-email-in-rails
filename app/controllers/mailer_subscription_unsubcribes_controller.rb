@@ -1,11 +1,8 @@
 class MailerSubscriptionUnsubcribesController < ApplicationController
-  before_action :set_user, only: [:show]
+  before_action :set_user, only: [:show, :update]
+  before_action :set_mailer_subscription, only: [:show, :update]
 
   def show
-    @mailer_subscription = MailerSubscription.find_or_initialize_by(
-      user: @user,
-      mailer: params[:mailer]
-    )
     @mailer_subscription.subscribed = false
     if @mailer_subscription.save
       @message = "You've successfully unsubscribed from this email."
@@ -14,11 +11,24 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
     end
   end
 
+  def update
+    if @mailer_subscription.toggle!(:subscribed)
+    else
+    end
+  end
+  
   private
-
+  
     def set_user
       @user = GlobalID::Locator.locate_signed params[:id]
       @message =  "There was an error" if @user.nil?
+    end
+  
+    def set_mailer_subscription
+      @mailer_subscription = MailerSubscription.find_or_initialize_by(
+        user: @user,
+        mailer: params[:mailer]
+      )
     end
 
 end
