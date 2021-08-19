@@ -7,7 +7,7 @@ class MailerSubscriptionUnsubcribesControllerTest < ActionDispatch::IntegrationT
 
   test "should create" do
     assert_difference("MailerSubscription.count", 1) do
-      post mailer_subscription_unsubcribes_path, params: { user: @user.to_global_id, mailer: "MarketingMailer" }
+      post mailer_subscription_unsubcribes_path, params: { user: @user.to_sgid.to_s, mailer: "MarketingMailer" }
     end
 
     assert_not MailerSubscription.last.subscribed?

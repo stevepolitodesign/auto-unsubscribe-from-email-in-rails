@@ -17,7 +17,7 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
   private
 
     def set_user
-      @user = GlobalID::Locator.locate params[:user]
+      @user = GlobalID::Locator.locate_signed params[:user]
       render plain: "There was an error" if @user.nil?
     end
 
