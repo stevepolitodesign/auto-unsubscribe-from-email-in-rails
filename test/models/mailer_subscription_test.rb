@@ -3,7 +3,7 @@ require "test_helper"
 class MailerSubscriptionTest < ActiveSupport::TestCase
   setup do
     @user = users(:one)
-    @mailer_subscription = @user.mailer_subscriptions.build(subscribed: true, mailer: "MarketingMailer")
+    @mailer_subscription = @user.mailer_subscriptions.build(mailer: "MarketingMailer")
   end
 
   test "should be valid" do
