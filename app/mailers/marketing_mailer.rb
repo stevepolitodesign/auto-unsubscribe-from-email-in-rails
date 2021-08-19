@@ -10,6 +10,7 @@ class MarketingMailer < ApplicationMailer
     @user             = params[:user]
     @message          = params[:message]
     @subject          = params[:subject]
+    # TODO: Consider putting this in a private method in ApplicationMailer and call via a before_action where necesary
     @unsubscribe_url  = mailer_subscription_unsubcribe_url(@user.to_sgid.to_s, mailer: self.class)
 
     mail to: @user.email, subject: @subject
