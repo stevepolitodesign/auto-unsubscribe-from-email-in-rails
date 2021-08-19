@@ -7,7 +7,7 @@ class MailerSubscriptionUnsubcribesControllerTest < ActionDispatch::IntegrationT
 
   test "should create" do
     assert_difference("MailerSubscription.count", 1) do
-      get mailer_subscription_unsubcribe_path(@user.to_sgid.to_s), params: { mailer: "MarketingMailer" }
+      get mailer_subscription_unsubcribe_path(@user.to_sgid.to_s, mailer: "MarketingMailer")
     end
 
     assert_not MailerSubscription.last.subscribed?
@@ -15,7 +15,7 @@ class MailerSubscriptionUnsubcribesControllerTest < ActionDispatch::IntegrationT
   end
 
   test "should handle bad token" do
-    get mailer_subscription_unsubcribe_path("a bad token"), params: { mailer: "MarketingMailer" }
+    get mailer_subscription_unsubcribe_path("a bad token", mailer: "MarketingMailer")
     assert_match "There was an error", @response.body
   end
 end

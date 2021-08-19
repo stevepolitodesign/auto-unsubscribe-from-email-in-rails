@@ -7,9 +7,10 @@ class MarketingMailer < ApplicationMailer
   #   en.marketing_mailer.promotion.subject
   #
   def promotion
-    @user     = params[:user]
-    @message  = params[:message]
-    @subject  = params[:subject]
+    @user             = params[:user]
+    @message          = params[:message]
+    @subject          = params[:subject]
+    @unsubscribe_url  = mailer_subscription_unsubcribe_url(@user.to_sgid.to_s, mailer: "MarketingMailer")
 
     mail to: @user.email, subject: @subject
   end
