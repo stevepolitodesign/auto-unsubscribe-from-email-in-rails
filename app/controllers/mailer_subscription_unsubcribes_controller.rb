@@ -1,7 +1,7 @@
 class MailerSubscriptionUnsubcribesController < ApplicationController
-  before_action :set_user
+  before_action :set_user, only: [:show]
 
-  def create
+  def show
     @mailer_subscription = MailerSubscription.find_or_initialize_by(
       user: @user,
       mailer: params[:mailer]
@@ -17,7 +17,7 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
   private
 
     def set_user
-      @user = GlobalID::Locator.locate_signed params[:user]
+      @user = GlobalID::Locator.locate_signed params[:id]
       render plain: "There was an error" if @user.nil?
     end
 
