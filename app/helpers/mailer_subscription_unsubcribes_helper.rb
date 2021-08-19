@@ -1,0 +1,2 @@
+module MailerSubscriptionUnsubcribesHelper
+end
