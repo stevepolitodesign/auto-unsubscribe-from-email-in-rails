@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 2021_08_18_235441) do
     t.string "mailer", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index "\"user\", \"mailer\"", name: "index_mailer_subscriptions_on_user_and_mailer", unique: true
+    t.index ["user_id", "mailer"], name: "index_mailer_subscriptions_on_user_id_and_mailer", unique: true
     t.index ["user_id"], name: "index_mailer_subscriptions_on_user_id"
   end
 
