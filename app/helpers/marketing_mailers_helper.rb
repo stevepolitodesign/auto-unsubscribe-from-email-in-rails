@@ -1,0 +1,2 @@
+module MarketingMailersHelper
+end

@@ -1,0 +1,2 @@
+class MarketingMailersController < ApplicationController
+end
