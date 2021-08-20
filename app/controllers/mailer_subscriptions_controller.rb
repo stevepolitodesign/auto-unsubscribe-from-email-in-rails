@@ -1,0 +1,2 @@
+class MailerSubscriptionsController < ApplicationController
+end
