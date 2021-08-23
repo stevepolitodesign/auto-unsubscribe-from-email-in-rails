@@ -1,2 +1,4 @@
 <h1>Unsubscribe</h1>
 <p><%= @message %></p>
+
+<%= button_to @mailer_subscription.subscribed? ? "Unsubscribe" : "Subscribe",  mailer_subscription_unsubcribe_path, method: :patch, params: { mailer: params[:mailer] } if @mailer_subscription.present? %>
