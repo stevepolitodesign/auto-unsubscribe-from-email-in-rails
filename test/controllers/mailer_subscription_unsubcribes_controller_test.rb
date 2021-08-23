@@ -18,4 +18,8 @@ class MailerSubscriptionUnsubcribesControllerTest < ActionDispatch::IntegrationT
     get mailer_subscription_unsubcribe_path("a bad token", mailer: "MarketingMailer")
     assert_match "There was an error", @response.body
   end
+
+  test "should update" do
+    flunk
+  end
 end
