@@ -14,5 +14,5 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :mailer_subscription_unsubcribes, only: [:show, :update]
-  resources :mailer_subscriptions, only: [:update]
+  resources :mailer_subscriptions, only: [:create, :update]
 end
