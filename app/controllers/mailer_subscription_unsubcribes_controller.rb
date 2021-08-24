@@ -3,8 +3,7 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
   before_action :set_mailer_subscription, only: [:show, :update]
 
   def show
-    @mailer_subscription.subscribed = false
-    if @mailer_subscription.save
+    if @mailer_subscription.update(subscribed: false)
       @message = "You've successfully unsubscribed from this email."
     else
       @message = "There was an error"
