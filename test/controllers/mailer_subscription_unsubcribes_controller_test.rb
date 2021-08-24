@@ -11,7 +11,7 @@ class MailerSubscriptionUnsubcribesControllerTest < ActionDispatch::IntegrationT
     end
 
     assert_not MailerSubscription.last.subscribed?
-    assert_match "You've successfully unsubscribed from this email.", @response.body
+    assert_match "successfully unsubscribed", @response.parsed_body
   end
 
   test "should handle bad token" do
@@ -20,6 +20,8 @@ class MailerSubscriptionUnsubcribesControllerTest < ActionDispatch::IntegrationT
   end
 
   test "should update" do
-    flunk
+    put mailer_subscription_unsubcribe_path(@user.to_sgid.to_s, mailer: "MarketingMailer")
+    assert MailerSubscription.last.subscribed?
+    assert_redirected_to root_path
   end
 end

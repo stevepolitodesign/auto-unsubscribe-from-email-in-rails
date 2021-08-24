@@ -13,9 +13,9 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
 
   def update
     if @mailer_subscription.toggle!(:subscribed)
-      redirect_to mailer_subscription_unsubcribe_path(params[:id], mailer: params[:mailer]), notice: "Subscription updated."
+      redirect_to root_path, notice: "Subscription updated."
     else
-      redirect_to mailer_subscription_unsubcribe_path(params[:id], mailer: params[:mailer]), notice: "There was an error."
+      redirect_to root_path, notice: "There was an error."
     end
   end
   
