@@ -9,8 +9,10 @@ class MailerSubscriptionsController < ApplicationController
   end
 
   def create
+    handle_unauthroized
     @mailer_subscription = current_user.mailer_subscriptions.build(mailer_subscription_params)
-    if @mailer_subscription.save?
+    @mailer_subscription.subscribed = true
+    if @mailer_subscription.save
       redirect_to mailer_subscriptions_path, notice: "Preferences updated."
     else
       redirect_to mailer_subscriptions_path, alter: "#{@mailer_subscription.errors.full_messages.to_sentence}"
@@ -18,6 +20,7 @@ class MailerSubscriptionsController < ApplicationController
   end
 
   def update
+    handle_unauthroized
     if @mailer_subscription.toggle!(:subscribed)
       redirect_to mailer_subscriptions_path, notice: "Preferences updated."
     else
@@ -28,10 +31,14 @@ class MailerSubscriptionsController < ApplicationController
   private
 
     def mailer_subscription_params
-      params.require(:mailer_subscription).permit(:mailer, :subscribed, :user_id)
+      params.require(:mailer_subscription).permit(:mailer, :subscribed)
     end
 
     def set_mailer_subscription
       @mailer_subscription = MailerSubscription.find(params[:id])
+    end
+
+    def handle_unauthroized
+      redirect_to root_path, notice: "Unauthorized." and return if current_user != @mailer_subscription.user
     end
 end

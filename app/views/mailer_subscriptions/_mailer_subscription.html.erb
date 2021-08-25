@@ -1,7 +1,7 @@
 <% if mailer_subscription.new_record? %>
   <li>
-    <%= button_to method: :post do %>
-      <%= mailer_subscription.attributes %>
+    <%= button_to mailer_subscriptions_path, params: { mailer_subscription:  mailer_subscription.attributes } do %>
+      <%= mailer_subscription.call_to_action %>
     <% end %>
   </li>
 <% else %>
