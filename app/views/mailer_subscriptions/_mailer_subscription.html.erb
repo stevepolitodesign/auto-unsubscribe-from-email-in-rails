@@ -1,2 +1,1 @@
-<li><%= mailer_subscription %></li>
-<%= MailerSubscription::MAILERS.items.select {|item| item[:class] == mailer_subscription.mailer } %>
+<li><%= mailer_subscription.call_to_action %></li>
