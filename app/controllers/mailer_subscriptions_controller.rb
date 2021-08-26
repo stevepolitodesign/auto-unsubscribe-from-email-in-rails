@@ -1,6 +1,7 @@
 class MailerSubscriptionsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_mailer_subscription, only: :update
+  before_action :handle_unauthroized, only: :update
 
   def index
     @mailer_subscriptions = MailerSubscription::MAILERS.items.map do |item|
@@ -9,7 +10,6 @@ class MailerSubscriptionsController < ApplicationController
   end
 
   def create
-    handle_unauthroized
     @mailer_subscription = current_user.mailer_subscriptions.build(mailer_subscription_params)
     @mailer_subscription.subscribed = true
     if @mailer_subscription.save
@@ -31,7 +31,7 @@ class MailerSubscriptionsController < ApplicationController
   private
 
     def mailer_subscription_params
-      params.require(:mailer_subscription).permit(:mailer, :subscribed)
+      params.require(:mailer_subscription).permit(:mailer)
     end
 
     def set_mailer_subscription
@@ -39,6 +39,6 @@ class MailerSubscriptionsController < ApplicationController
     end
 
     def handle_unauthroized
-      redirect_to root_path, notice: "Unauthorized." and return if current_user != @mailer_subscription.user
+      redirect_to root_path, status: :unauthorized, notice: "Unauthorized." and return if current_user != @mailer_subscription.user
     end
 end

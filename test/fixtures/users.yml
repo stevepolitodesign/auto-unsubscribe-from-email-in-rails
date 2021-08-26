@@ -7,3 +7,7 @@
 one:
   email: $LABEL@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+
+two:
+  email: $LABEL@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
