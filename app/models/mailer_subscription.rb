@@ -6,7 +6,12 @@ class MailerSubscription < ApplicationRecord
       {
         class: "MarketingMailer",
         name: "Marketing Emails",
-        description: "Emails about promotions and sales"
+        description: "Updates on promotions and sales."
+      },
+      {
+        class: "NotificationMailer",
+        name: "Notification Emails",
+        description: "Notifications from the website."
       }
     ]
   ).freeze
