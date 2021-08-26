@@ -6,7 +6,9 @@ class NotificationMailerTest < ActionMailer::TestCase
   end
 
   test "notify" do
-    mail = NotificationMailer.notify
+    mail = NotificationMailer.with(
+      user: @user
+    ).notify
     assert_equal "Notify", mail.subject
     assert_equal [@user.email], mail.to
     assert_equal ["from@example.com"], mail.from
@@ -26,7 +28,7 @@ class NotificationMailerTest < ActionMailer::TestCase
     )
 
     assert_emails 1 do
-      MarketingMailer.with(
+      NotificationMailer.with(
         user: @user,
       ).notify.deliver_now
     end    
