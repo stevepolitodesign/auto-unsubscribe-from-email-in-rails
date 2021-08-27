@@ -1,7 +1,6 @@
 require "test_helper"
 
 class MarketingMailerTest < ActionMailer::TestCase
-  include Rails.application.routes.url_helpers
 
   setup do
     @user = users(:one)
