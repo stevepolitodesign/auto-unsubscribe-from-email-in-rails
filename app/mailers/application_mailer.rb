@@ -9,11 +9,7 @@ class ApplicationMailer < ActionMailer::Base
   private
   
   def prevent_delivery_if_recipient_opted_out
-    if MailerSubscription::MAILERS.items.select{ |item| item[:class] == self.class.to_s }.present?
-      mail.perform_deliveries = @user.subscribed_to_mailer? self.class.to_s
-    else
-      mail.perform_deliveries = true
-    end
+    mail.perform_deliveries = @user.subscribed_to_mailer? self.class.to_s
   end
 
   def set_user
