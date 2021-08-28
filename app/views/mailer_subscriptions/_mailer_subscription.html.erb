@@ -1,13 +1,17 @@
 <% if mailer_subscription.new_record? %>
-  <li>
+  <li style="margin-bottom: 16px;">
+    <p><%= mailer_subscription.description %></p>
     <%= button_to mailer_subscriptions_path, params: { mailer_subscription:  mailer_subscription.attributes } do %>
       <%= mailer_subscription.call_to_action %>
     <% end %>
+    <hr/>
   </li>
 <% else %>
-  <li>
+  <li style="margin-bottom: 16px;">
+    <p><%= mailer_subscription.description %></p>
     <%= button_to mailer_subscription_path(mailer_subscription), method: :put do %>
       <%= mailer_subscription.call_to_action %>
     <% end %>
+    <hr/>
   </li>
 <% end %>
