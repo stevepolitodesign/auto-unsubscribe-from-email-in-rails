@@ -1,6 +1,7 @@
 class ApplicationMailer < ActionMailer::Base
   before_action :set_user
   before_action :set_unsubscribe_url
+  before_action :set_mailer_subscriptions_url
   after_action :prevent_delivery_if_recipient_opted_out
 
   default from: 'from@example.com'
@@ -19,4 +20,8 @@ class ApplicationMailer < ActionMailer::Base
   def set_unsubscribe_url
     @unsubscribe_url = mailer_subscription_unsubcribe_url(@user.to_sgid.to_s, mailer: self.class)
   end  
+
+  def set_mailer_subscriptions_url
+    @mailer_subscriptions_url = mailer_subscriptions_url
+  end
 end
