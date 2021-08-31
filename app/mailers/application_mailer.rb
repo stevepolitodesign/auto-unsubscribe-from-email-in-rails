@@ -1,8 +1,8 @@
 class ApplicationMailer < ActionMailer::Base
   before_action :set_user
-  before_action :set_unsubscribe_url
-  before_action :set_mailer_subscriptions_url
-  after_action :prevent_delivery_if_recipient_opted_out
+  before_action :set_unsubscribe_url, if: :should_unsubscribe?
+  before_action :set_mailer_subscriptions_url, if: :should_unsubscribe?
+  after_action :prevent_delivery_if_recipient_opted_out, if: :should_unsubscribe?
 
   default from: 'from@example.com'
   layout 'mailer'
@@ -23,5 +23,9 @@ class ApplicationMailer < ActionMailer::Base
 
   def set_mailer_subscriptions_url
     @mailer_subscriptions_url = mailer_subscriptions_url
+  end
+
+  def should_unsubscribe?
+    @user.present? && @user.respond_to?(:subscribed_to_mailer?)
   end
 end
