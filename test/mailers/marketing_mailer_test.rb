@@ -16,7 +16,7 @@ class MarketingMailerTest < ActionMailer::TestCase
     assert_equal [@user.email], mail.to
     assert_equal ["from@example.com"], mail.from
     assert_match "Some message", mail.body.encoded
-    assert_match @user.to_sgid.to_s, mail.body.encoded
+    assert_match "Unsubscribe", mail.body.encoded
   end
 
   test "should prevent delivery" do
