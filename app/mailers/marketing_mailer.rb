@@ -7,7 +7,6 @@ class MarketingMailer < ApplicationMailer
   def promotion
     @message          = params[:message]
     @subject          = params[:subject]
-    # TODO: Add a link to the settings page.
     mail to: @user.email, subject: @subject
   end
 end

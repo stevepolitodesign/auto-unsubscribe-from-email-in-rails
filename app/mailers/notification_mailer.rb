@@ -6,7 +6,6 @@ class NotificationMailer < ApplicationMailer
   #   en.notification_mailer.notify.subject
   #
   def notify
-    @user = params[:user]
     @greeting = "Hi"
 
     mail to: @user.email
