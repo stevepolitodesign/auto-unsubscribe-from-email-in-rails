@@ -1,6 +1,8 @@
 # Auto Unsubscribe from Emails in Rails
 
-## Step 1: Build MailerSubscription Model
+## Step 1: Build Mailers
+
+## Step 2: Build Model to Save Email Preferences
 
 ```
 rails g model mailer_subscription user:references subscribed:boolean mailer:string
@@ -109,7 +111,7 @@ class User < ApplicationRecord
 end
 ```
 
-## Step 2: Automatically Unsubscribe from a Mailer
+## Step 3: Automatically Unsubscribe from a Mailer
 
 ```
 rails g controller mailer_subscription_unsubcribes
@@ -169,10 +171,13 @@ end
 ```
 
 ```html+erb
+<h1>Unsubscribe</h1>
+<p><%= @message %></p>
 
+<%= button_to @mailer_subscription.call_to_action, mailer_subscription_unsubcribe_path, method: :patch, params: { mailer: params[:mailer] } if @mailer_subscription.present? %>
 ```
 
-## Step 3: Build a Mailer Settings Page
+## Step 4: Build Page for Email Preferences
 
 ```
 rails g controller mailer_subscriptions 
@@ -192,7 +197,7 @@ end
 class MailerSubscriptionsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_mailer_subscription, only: :update
-  before_action :handle_unauthroized, only: :update
+  before_action :handle_unauthorized, only: :update
 
   # We can't call @user.mailer_subscriptions because they may not have any 
   # Instead we load all possible MailerSubscription combinations
@@ -213,7 +218,7 @@ class MailerSubscriptionsController < ApplicationController
   end
 
   def update
-    handle_unauthroized
+    handle_unauthorized
     if @mailer_subscription.toggle!(:subscribed)
       redirect_to mailer_subscriptions_path, notice: "Preferences updated."
     else
@@ -232,9 +237,38 @@ class MailerSubscriptionsController < ApplicationController
     end
 
     # This prevents a user from subscribing/unsubscribing another user from mailers 
-    def handle_unauthroized
+    def handle_unauthorized
       redirect_to root_path, status: :unauthorized, notice: "Unauthorized." and return if current_user != @mailer_subscription.user
     end
 end
-
 ```
+
+```html+erb
+# app/views/mailer_subscriptions/index.html.erb
+<ul style="list-style:none;">
+  <%= render @mailer_subscriptions %>
+</ul>
+```
+
+```html+erb
+# app/views/mailer_subscriptions/_mailer_subscription.html.erb
+<% if mailer_subscription.new_record? %>
+  <li style="margin-bottom: 16px;">
+    <p><%= mailer_subscription.description %></p>
+    <%= button_to mailer_subscriptions_path, params: { mailer_subscription:  mailer_subscription.attributes } do %>
+      <%= mailer_subscription.call_to_action %>
+    <% end %>
+    <hr/>
+  </li>
+<% else %>
+  <li style="margin-bottom: 16px;">
+    <p><%= mailer_subscription.description %></p>
+    <%= button_to mailer_subscription_path(mailer_subscription), method: :put do %>
+      <%= mailer_subscription.call_to_action %>
+    <% end %>
+    <hr/>
+  </li>
+<% end %>
+```
+
+## Step 5: Build Page for Email Preferences
