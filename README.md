@@ -2,6 +2,38 @@
 
 ## Step 1: Build Mailers
 
+```
+rails g mailer marketing promotion
+rails g mailer notification notify
+```
+
+```ruby
+# test/mailers/previews/marketing_mailer_preview.rb
+class MarketingMailerPreview < ActionMailer::Preview
+
+  def promotion
+    MarketingMailer.with(
+      user: User.first,
+      ...
+    ).promotion
+  end
+
+end
+```
+
+```ruby
+# test/mailers/previews/notification_mailer_preview.rb
+class NotificationMailerPreview < ActionMailer::Preview
+
+  def notify
+    NotificationMailer.with(
+      user: User.first
+    ).notify
+  end
+
+end
+```
+
 ## Step 2: Build Model to Save Email Preferences
 
 ```
@@ -111,7 +143,7 @@ class User < ApplicationRecord
 end
 ```
 
-## Step 3: Automatically Unsubscribe from a Mailer
+## Step 3: Allow User to Automatically Unsubscribe from a Mailer
 
 ```
 rails g controller mailer_subscription_unsubcribes
@@ -178,7 +210,7 @@ end
 <%= button_to @mailer_subscription.call_to_action, mailer_subscription_unsubcribe_path, method: :patch, params: { mailer: params[:mailer] } if @mailer_subscription.present? %>
 ```
 
-## Step 4: Build Page for Email Preferences
+## Step 4: Build Page for USer to Update Their Email Preferences
 
 ```
 rails g controller mailer_subscriptions 
@@ -272,7 +304,7 @@ end
 <% end %>
 ```
 
-## Step 5: Add Unsubscribe Link to Mailer and Prevent Delivery
+## Step 5: Add Unsubscribe Link to Mailer and Prevent Delivery if User has Unsubscribed
 
 ```ruby
 # app/mailers/application_mailer.rb
