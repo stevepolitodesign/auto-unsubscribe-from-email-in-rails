@@ -363,7 +363,7 @@ end
 </html>
 ```
 
-```txt+erb
+```html+erb
 <%# app/views/layouts/mailer.txt.erb %>
 <%= yield %>
 <%= render "shared/mailers/unsubscribe_links" if @unsubscribe_url.present? %>
