@@ -1,7 +1,7 @@
 class MailerSubscriptionsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_mailer_subscription, only: :update
-  before_action :handle_unauthroized, only: :update
+  before_action :handle_unauthorized, only: :update
 
   def index
     @mailer_subscriptions = MailerSubscription::MAILERS.items.map do |item|
@@ -20,7 +20,7 @@ class MailerSubscriptionsController < ApplicationController
   end
 
   def update
-    handle_unauthroized
+    handle_unauthorized
     if @mailer_subscription.toggle!(:subscribed)
       redirect_to mailer_subscriptions_path, notice: "Preferences updated."
     else
@@ -38,7 +38,7 @@ class MailerSubscriptionsController < ApplicationController
       @mailer_subscription = MailerSubscription.find(params[:id])
     end
 
-    def handle_unauthroized
+    def handle_unauthorized
       redirect_to root_path, status: :unauthorized, notice: "Unauthorized." and return if current_user != @mailer_subscription.user
     end
 end
