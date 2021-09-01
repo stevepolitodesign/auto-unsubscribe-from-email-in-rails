@@ -171,6 +171,7 @@ end
 ```
 
 ```html+erb
+<%# app/views/mailer_subscription_unsubcribes/show.html.erb %>
 <h1>Unsubscribe</h1>
 <p><%= @message %></p>
 
@@ -244,14 +245,14 @@ end
 ```
 
 ```html+erb
-# app/views/mailer_subscriptions/index.html.erb
+<%# app/views/mailer_subscriptions/index.html.erb %>
 <ul style="list-style:none;">
   <%= render @mailer_subscriptions %>
 </ul>
 ```
 
 ```html+erb
-# app/views/mailer_subscriptions/_mailer_subscription.html.erb
+<%# app/views/mailer_subscriptions/_mailer_subscription.html.erb %>
 <% if mailer_subscription.new_record? %>
   <li style="margin-bottom: 16px;">
     <p><%= mailer_subscription.description %></p>
@@ -271,4 +272,66 @@ end
 <% end %>
 ```
 
-## Step 5: Build Page for Email Preferences
+## Step 5: Add Unsubscribe Link to Mailer and Prevent Delivery
+
+```ruby
+# app/mailers/application_mailer.rb
+class ApplicationMailer < ActionMailer::Base
+  before_action :set_user
+  before_action :set_unsubscribe_url, if: :should_unsubscribe?
+  before_action :set_mailer_subscriptions_url, if: :should_unsubscribe?
+
+  # Conditionally prevent the mailer from being sent
+  # If the user is not subscribed to that mailer
+  after_action :prevent_delivery_if_recipient_opted_out, if: :should_unsubscribe?
+
+  default from: 'from@example.com'
+  layout 'mailer'
+
+  private
+  
+  # Will set mail.perform_deliveries to true or false
+  def prevent_delivery_if_recipient_opted_out
+    mail.perform_deliveries = @user.subscribed_to_mailer? self.class.to_s
+  end
+
+  def set_user
+    @user = params[:user]
+  end
+  
+  # We call to_sgid.to_s to ensure the the URL is unique and does not contain the user's id
+  # Otherwise a bad actor could unsubscribe any user from a mailer
+
+  # Calling self.class will return the name of the mailer
+  def set_unsubscribe_url
+    @unsubscribe_url = mailer_subscription_unsubcribe_url(@user.to_sgid.to_s, mailer: self.class)
+  end  
+
+  def set_mailer_subscriptions_url
+    @mailer_subscriptions_url = mailer_subscriptions_url
+  end
+
+  # This ensures we've passed a user to the mailer
+  def should_unsubscribe?
+    @user.present? && @user.respond_to?(:subscribed_to_mailer?)
+  end
+end
+```
+
+```html+erb
+<%# app/views/layouts/mailer.html.erb %>
+<!DOCTYPE html>
+<html>
+  ...
+  <body>
+    <%= yield %>
+    <%= render "shared/mailers/unsubscribe_links" if @unsubscribe_url.present? %>
+  </body>
+</html>
+```
+
+```txt+erb
+<%# app/views/layouts/mailer.txt.erb %>
+<%= yield %>
+<%= render "shared/mailers/unsubscribe_links" if @unsubscribe_url.present? %>
+```
