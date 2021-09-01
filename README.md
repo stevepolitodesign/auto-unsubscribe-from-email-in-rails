@@ -28,6 +28,7 @@ class NotificationMailerPreview < ActionMailer::Preview
   def notify
     NotificationMailer.with(
       user: User.first
+      ...
     ).notify
   end
 
