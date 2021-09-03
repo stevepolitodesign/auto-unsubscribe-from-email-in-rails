@@ -2,10 +2,14 @@
 
 ## Step 1: Build Mailers
 
+1. Generate mailers.
+
 ```
 rails g mailer marketing promotion
 rails g mailer notification notify
 ```
+
+2. Update previews by passing a user into the mailer. This assumes your database has at least one user record.
 
 ```ruby
 # test/mailers/previews/marketing_mailer_preview.rb
@@ -37,9 +41,13 @@ end
 
 ## Step 2: Build Model to Save Email Preferences
 
+1. Generate the model and migration.
+
 ```
 rails g model mailer_subscription user:references subscribed:boolean mailer:string
 ```
+
+2. Add a null constraint to the mailer column, and a unique index on the user_id and mailer columns. This will prevent duplicate records.
 
 ```ruby
 class CreateMailerSubscriptions < ActiveRecord::Migration[6.1]
@@ -47,29 +55,34 @@ class CreateMailerSubscriptions < ActiveRecord::Migration[6.1]
     create_table :mailer_subscriptions do |t|
       t.references :user, null: false, foreign_key: true
       t.boolean :subscribed
-      # Prevent null values
       t.string :mailer, null: false
 
       t.timestamps
     end
 
-    # Add a unique index to prevent duplicate values
     add_index(:mailer_subscriptions, [:user_id, :mailer], unique: true)
   end
 end
 ```
 
+> **What's Going On Here**
+>
+> - We add `null: false` to the `mailer` column to prevent empty values from being saved, since this column is required.
+> - We add a [unique index](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/SchemaStatements.html#method-i-add_index) on the `user_id` and `mailer` columns to prevent a user from having multiple preferences for a mailer.
+
+3. Run the migrations.
+
 ```
 rails db:migrate
 ```
+
+4. Build model.
 
 ```ruby
 # app/models/mailer_subscription.rb
 class MailerSubscription < ApplicationRecord
   belongs_to :user
 
-  # A list of mailers a user will be able to subscribe/unsubscribe from
-  # The class value must match the name of a Mailer class
   MAILERS = OpenStruct.new(
     items: [
       {
@@ -87,11 +100,7 @@ class MailerSubscription < ApplicationRecord
 
   validates :subscribed, inclusion: [true, false], allow_nil: true
   validates :mailer, presence: true
-
-  # Constrain the mailer to only include certain values.
   validates :mailer, inclusion: MAILERS.items.map{ |item|  item[:class] }
-
-  # This will prevent a user from having duplicate or conflicting preferences
   validates :user, uniqueness: { scope: :mailer }
 
   # @mailer_subscription.details
@@ -127,6 +136,15 @@ class MailerSubscription < ApplicationRecord
 end
 ```
 
+> **What's Going On Here**
+>
+> - We add a constant to store a list of mailers a user will be able to subscribe/unsubscribe from. The class value must match the name of a Mailer class. 
+> - We use the values stored in the constant to constraint what values can be set on the `mailer` column. This prevents us from accidentally creating a record with an invalid mailer.
+> - We add a [uniqueness validator](https://guides.rubyonrails.org/active_record_validations.html#uniqueness) between the `user` and `mailer`. This is made possible by the unique index we created in the migration. This will ensure a user cannot have multiple preferences for the same mailer.
+> - We use the values stored in the constant to create a variety of helper methods that can be used in views. 
+
+5. Add method to check if a user is subscribed to a specific mailer. This is an opt-in strategy, and 
+
 ```ruby
 # app/models/user.rb
 class User < ApplicationRecord
@@ -143,6 +161,12 @@ class User < ApplicationRecord
   end
 end
 ```
+
+> **What's Going On Here**
+>
+> - We add a method that checks if a user is subscribed to a particular mailer. If the method finds a matching record, then the user is subscribed. Otherwise, they are not. Note that this is an opt-in strategy. We're deliberately looking for records where `subscribed` is set to `true`. This means that if there is no record in the database, they'll be unsubscribed.
+> - To make this an opt-out strategy, you could simply replace `subscribed: true` with `subscribed: false`.
+
 
 ## Step 3: Allow User to Automatically Unsubscribe from a Mailer
 
