@@ -167,7 +167,6 @@ end
 > - We add a method that checks if a user is subscribed to a particular mailer. If the method finds a matching record, then the user is subscribed. Otherwise, they are not. Note that this is an opt-in strategy. We're deliberately looking for records where `subscribed` is set to `true`. This means that if there is no record in the database, they'll be unsubscribed.
 > - To make this an opt-out strategy, you could simply replace `subscribed: true` with `subscribed: false`.
 
-
 ## Step 3: Allow User to Automatically Unsubscribe from a Mailer
 
 ```
@@ -235,7 +234,7 @@ end
 <%= button_to @mailer_subscription.call_to_action, mailer_subscription_unsubcribe_path, method: :patch, params: { mailer: params[:mailer] } if @mailer_subscription.present? %>
 ```
 
-## Step 4: Build Page for USer to Update Their Email Preferences
+## Step 4: Build Page for User to Update Their Email Preferences
 
 ```
 rails g controller mailer_subscriptions 
