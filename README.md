@@ -1,4 +1,6 @@
-# Auto Unsubscribe from Emails in Rails
+# Automatically Unsubscribe from Emails in Rails (and Control Email Preferences)
+
+Inspired by [GoRails](https://gorails.com/episodes/rails-email-unsubscribe-links).
 
 ![demo](public/demo.mp4)
 
