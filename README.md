@@ -2,7 +2,7 @@
 
 Inspired by [GoRails](https://gorails.com/episodes/rails-email-unsubscribe-links).
 
-![demo](public/demo.mp4)
+![demo](public/demo.gif)
 
 ## Step 1: Build Mailers
 
