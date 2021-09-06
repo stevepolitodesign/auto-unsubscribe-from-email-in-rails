@@ -408,7 +408,7 @@ end
 > **What's Going On Here?**
 >
 > - We add several [action mailer callbacks](https://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-callbacks) to the `ApplicationMailer` in order for this logic to be shared across all mailers.
-> - We call `prevent_delivery_if_recipient_opted_out` which will conditionally prevent the mailer from being sent if the user is not subscribed to that mailer. This is accomplished by setting mail.perform_deliveries to `true` or `false` based on the return value of `@user.subscribed_to_mailer? self.class.to_s`. Note that calling `self.class.to_s` will return the name of the mailer (i.e. MarketingMailer).
+> - We call `prevent_delivery_if_recipient_opted_out` which will conditionally prevent the mailer from being sent if the user is not subscribed to that mailer. This is accomplished by setting `mail.perform_deliveries` to `true` or `false` based on the return value of `@user.subscribed_to_mailer? self.class.to_s`. Note that calling `self.class.to_s` will return the name of the mailer (i.e. MarketingMailer).
 > - We call `@user.to_sgid.to_s` to ensure the the URL is unique and does not contain the user's id. Otherwise a bad actor could unsubscribe any user from a mailer.
 > - We conditionally call these callbacks with `should_unsubscribe?` to ensures we've passed a user to the mailer. 
 
