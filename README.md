@@ -43,7 +43,7 @@ class NotificationMailerPreview < ActionMailer::Preview
 end
 ```
 
-## Step 2: Build Model to Save Email Preferences
+## Step 2: Build a Model to Save Email Preferences
 
 1. Generate the model and migration.
 
@@ -143,11 +143,11 @@ end
 > **What's Going On Here**
 >
 > - We add a constant to store a list of mailers a user will be able to subscribe/unsubscribe from. The class value must match the name of a Mailer class. 
-> - We use the values stored in the constant to constraint what values can be set on the `mailer` column. This prevents us from accidentally creating a record with an invalid mailer.
+> - We use the values stored in the constant to constrain what values can be set on the `mailer` column. This prevents us from accidentally creating a record with an invalid mailer.
 > - We add a [uniqueness validator](https://guides.rubyonrails.org/active_record_validations.html#uniqueness) between the `user` and `mailer`. This is made possible by the unique index we created in the migration. This will ensure a user cannot have multiple preferences for the same mailer.
 > - We use the values stored in the constant to create a variety of helper methods that can be used in views. 
 
-5. Add method to check if a user is subscribed to a specific mailer. This is an opt-in strategy, and 
+5. Add method to check if a user is subscribed to a specific mailer.
 
 ```ruby
 # app/models/user.rb
@@ -168,10 +168,10 @@ end
 
 > **What's Going On Here?**
 >
-> - We add a method that checks if a user is subscribed to a particular mailer. If the method finds a matching record, then the user is subscribed. Otherwise, they are not. Note that this is an opt-in strategy. We're deliberately looking for records where `subscribed` is set to `true`. This means that if there is no record in the database, they'll be unsubscribed.
+> - We add a method that checks if a user is subscribed to a particular mailer. If the method finds a matching record, then the user is subscribed. Otherwise, they are not. Note that this is an opt-in strategy. We're deliberately looking for records where `subscribed` is set to `true`. This means that if there is no record in the database, they'll be considered unsubscribed.
 > - To make this an opt-out strategy, you could simply replace `subscribed: true` with `subscribed: false`.
 
-## Step 3: Allow User to Automatically Unsubscribe from a Mailer
+## Step 3: Allow a User to Automatically Unsubscribe from a Mailer
 
 1. Generate a controller to handle automatic unsubscribes.
 
@@ -218,8 +218,6 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
       @message =  "There was an error" if @user.nil?
     end
 
-    # Either find an existing MailerSubscription record
-    # or initialize a new one
     def set_mailer_subscription
       @mailer_subscription = MailerSubscription.find_or_initialize_by(
         user: @user,
@@ -257,7 +255,7 @@ http://localhost:3000/mailer_subscription_unsubcribes/abc123...?mailer=Marketing
 > - We add a button on that page that will allow the user to resubscribe to the mailer. Note that we don't redirect back to the `show` action because that would end up unsubscribing the user from the mailer again.
 > - We find the user through their GlobalID in the URL which makes the URLs difficult to discover. Otherwise the URL would just accept the user's ID which is much easier to guess. This will prevent a bad actor from from unsubscribing a user from a mailer. 
 
-## Step 4: Build Page for User to Update Their Email Preferences
+## Step 4: Build a Page for User to Update Their Email Preferences
 
 1. Generate a controller for the MailerSubscription model.
  
@@ -367,7 +365,7 @@ http://localhost:3000/mailer_subscriptions
 
 ![Page for User to Update Their Email Preferences](public/notification_settings.png)
 
-## Step 5: Add Unsubscribe Link to Mailer and Prevent Delivery if User has Unsubscribed
+## Step 5: Add Unsubscribe Link to Mailer and Prevent Delivery if User Has Unsubscribed
 
 1. Add shared logic to `ApplicationMailer`.
 
