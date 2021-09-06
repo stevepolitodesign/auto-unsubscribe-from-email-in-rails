@@ -16,4 +16,17 @@ class MailerSubscriptionTest < ActiveSupport::TestCase
     assert_not @duplicate_mailer_subscription.valid?
   end
 
+  test "should have mailer" do
+    @mailer_subscription.mailer = nil
+    assert_not @mailer_subscription.valid?
+  end
+
+  test "mailer should be in list" do
+    invalid_mailers = %w(Foo Bar Baz)
+    invalid_mailers.each do |invalid_mailer|
+      @mailer_subscription.mailer = invalid_mailer
+      assert_not @mailer_subscription.valid?
+    end
+  end
+
 end

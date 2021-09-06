@@ -9,5 +9,6 @@
 
   <body>
     <%= yield %>
+    <%= render "shared/mailers/unsubscribe_links" if @unsubscribe_url.present? %>
   </body>
 </html>
