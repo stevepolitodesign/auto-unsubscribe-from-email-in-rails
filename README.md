@@ -1,5 +1,7 @@
 # Automatically Unsubscribe from Emails in Rails (and Control Email Preferences)
 
+Learn how to add a link to any Rails Mailer that will allow a user to automatically unsubscribe from that email. As an added bonus, we'll build a page allowing a user to update their email preferences across all mailers.
+
 Inspired by [GoRails](https://gorails.com/episodes/rails-email-unsubscribe-links).
 
 ![demo](public/demo.gif)
