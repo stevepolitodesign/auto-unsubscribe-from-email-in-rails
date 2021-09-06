@@ -435,3 +435,7 @@ end
 ```
 
 ![Conditionally render unsubscribe links in mailer layouts.](public/notification_settings.png)
+
+---
+
+Did you like this post? [Follow me on Twitter](https://twitter.com/stevepolitodsgn) to get even more tips.
