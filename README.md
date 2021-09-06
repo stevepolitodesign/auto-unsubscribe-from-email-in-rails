@@ -169,6 +169,8 @@ end
 
 ## Step 3: Allow User to Automatically Unsubscribe from a Mailer
 
+1. Generate a controller to handle automatic unsubscribes.
+
 ```
 rails g controller mailer_subscription_unsubcribes
 ```
@@ -181,13 +183,14 @@ Rails.application.routes.draw do
 end
 ```
 
+2. Build the endpoints.
+
 ```ruby
 # app/controllers/mailer_subscription_unsubcribes_controller.rb
 class MailerSubscriptionUnsubcribesController < ApplicationController
   before_action :set_user, only: [:show, :update]
   before_action :set_mailer_subscription, only: [:show, :update]
 
-  # Automatically unsubscribe a user from a mailer when they visit this route
   def show
     if @mailer_subscription.update(subscribed: false)
       @message = "You've successfully unsubscribed from this email."
@@ -196,7 +199,6 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
     end
   end
 
-  # Allow a user to resubscribe
   def update
     if @mailer_subscription.toggle!(:subscribed)
       redirect_to root_path, notice: "Subscription updated."
@@ -206,9 +208,7 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
   end
   
   private
-
-    # Find the user through their GlobalID in the URL
-    # This makes the URLs difficult to discover 
+ 
     def set_user
       @user = GlobalID::Locator.locate_signed params[:id]
       @message =  "There was an error" if @user.nil?
@@ -226,6 +226,8 @@ class MailerSubscriptionUnsubcribesController < ApplicationController
 end
 ```
 
+3. Build the view.
+
 ```html+erb
 <%# app/views/mailer_subscription_unsubcribes/show.html.erb %>
 <h1>Unsubscribe</h1>
@@ -233,6 +235,23 @@ end
 
 <%= button_to @mailer_subscription.call_to_action, mailer_subscription_unsubcribe_path, method: :patch, params: { mailer: params[:mailer] } if @mailer_subscription.present? %>
 ```
+
+You can test this be getting the [Global ID](https://github.com/rails/globalid) of a user and going to the endpoint.
+
+```ruby
+User.first.to_sgid.to_s
+# => "abc123..."
+```
+
+http://localhost:3000/mailer_subscription_unsubcribes/abc123...?mailer=MarketingMailer
+
+![Page where a user can auto unsubscribe from mailer](public/auto_unsubscribe_path.png)
+
+> **What's Going On Here**
+>
+> - We create an endpoint that will automatically unsubscribe a user from a particular mailer. This is a little unconventional since we're creating a record on a GET request (instead of a POST request). We're forced to do this because a user will be clicking a link from an email to unsubscribe. If emails supported forms, we could create a POST request.
+> - We add a button on that page that will allow the user to resubscribe to the mailer. Note that we don't redirect back to the `show` action because that would end up unsubscribing the user from the mailer again.
+> - We find the user through their GlobalID in the URL which makes the URLs difficult to discover. Otherwise the URL would just accept the user's ID which is much easier to guess. This will prevent a bad actor from from unsubscribing a user from a mailer. 
 
 ## Step 4: Build Page for User to Update Their Email Preferences
 
