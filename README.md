@@ -1,5 +1,7 @@
 # Auto Unsubscribe from Emails in Rails
 
+![demo](public/demo.mp4)
+
 ## Step 1: Build Mailers
 
 1. Generate mailers.
