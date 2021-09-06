@@ -65,7 +65,7 @@ class CreateMailerSubscriptions < ActiveRecord::Migration[6.1]
 end
 ```
 
-> **What's Going On Here**
+> **What's Going On Here?**
 >
 > - We add `null: false` to the `mailer` column to prevent empty values from being saved, since this column is required.
 > - We add a [unique index](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/SchemaStatements.html#method-i-add_index) on the `user_id` and `mailer` columns to prevent a user from having multiple preferences for a mailer.
@@ -76,7 +76,7 @@ end
 rails db:migrate
 ```
 
-4. Build model.
+4. Build the MailerSubscription model.
 
 ```ruby
 # app/models/mailer_subscription.rb
@@ -162,7 +162,7 @@ class User < ApplicationRecord
 end
 ```
 
-> **What's Going On Here**
+> **What's Going On Here?**
 >
 > - We add a method that checks if a user is subscribed to a particular mailer. If the method finds a matching record, then the user is subscribed. Otherwise, they are not. Note that this is an opt-in strategy. We're deliberately looking for records where `subscribed` is set to `true`. This means that if there is no record in the database, they'll be unsubscribed.
 > - To make this an opt-out strategy, you could simply replace `subscribed: true` with `subscribed: false`.
@@ -247,7 +247,7 @@ http://localhost:3000/mailer_subscription_unsubcribes/abc123...?mailer=Marketing
 
 ![Page where a user can auto unsubscribe from mailer](public/auto_unsubscribe_path.png)
 
-> **What's Going On Here**
+> **What's Going On Here?**
 >
 > - We create an endpoint that will automatically unsubscribe a user from a particular mailer. This is a little unconventional since we're creating a record on a GET request (instead of a POST request). We're forced to do this because a user will be clicking a link from an email to unsubscribe. If emails supported forms, we could create a POST request.
 > - We add a button on that page that will allow the user to resubscribe to the mailer. Note that we don't redirect back to the `show` action because that would end up unsubscribing the user from the mailer again.
@@ -255,6 +255,8 @@ http://localhost:3000/mailer_subscription_unsubcribes/abc123...?mailer=Marketing
 
 ## Step 4: Build Page for User to Update Their Email Preferences
 
+1. Generate a controller for the MailerSubscription model.
+ 
 ```
 rails g controller mailer_subscriptions 
 ```
@@ -268,6 +270,8 @@ Rails.application.routes.draw do
 end
 ```
 
+2. Build the endpoints.
+
 ```ruby
 # app/controllers/mailer_subscriptions_controller.rb
 class MailerSubscriptionsController < ApplicationController
@@ -275,8 +279,6 @@ class MailerSubscriptionsController < ApplicationController
   before_action :set_mailer_subscription, only: :update
   before_action :handle_unauthorized, only: :update
 
-  # We can't call @user.mailer_subscriptions because they may not have any 
-  # Instead we load all possible MailerSubscription combinations
   def index
     @mailer_subscriptions = MailerSubscription::MAILERS.items.map do |item|
       MailerSubscription.find_or_initialize_by(mailer: item[:class], user: current_user)
@@ -294,7 +296,6 @@ class MailerSubscriptionsController < ApplicationController
   end
 
   def update
-    handle_unauthorized
     if @mailer_subscription.toggle!(:subscribed)
       redirect_to mailer_subscriptions_path, notice: "Preferences updated."
     else
@@ -312,12 +313,18 @@ class MailerSubscriptionsController < ApplicationController
       @mailer_subscription = MailerSubscription.find(params[:id])
     end
 
-    # This prevents a user from subscribing/unsubscribing another user from mailers 
     def handle_unauthorized
       redirect_to root_path, status: :unauthorized, notice: "Unauthorized." and return if current_user != @mailer_subscription.user
     end
 end
 ```
+
+> **What's Going On Here?**
+>
+> - We create a page allowing a user to subscribe/unsubscribe from all possible mailers that are defined in `MailerSubscription::MAILERS`. We can't call `@user.mailer_subscriptions` because they may not have any records.
+> - We create a `handle_unauthorized` method to prevent a user from subscribing/unsubscribing another user from mailers. We need to do this because we're passing in the ID of the `MailerSubscription` through the params hash which can be altered via the browser.
+
+3. Build the views.
 
 ```html+erb
 <%# app/views/mailer_subscriptions/index.html.erb %>
@@ -347,7 +354,18 @@ end
 <% end %>
 ```
 
+> **What's Going On Here?**
+>
+> - We loop through each `MailerSubscription` instance. If it's a [new_record?](https://api.rubyonrails.org/classes/ActiveRecord/Persistence.html#method-i-new_record-3F) we create a `MailerSubscription`. Otherwise, it's an existing record and we [toggle!](https://api.rubyonrails.org/classes/ActiveRecord/Persistence.html#method-i-toggle-21) the `subscribed` value.
+> - In either case we use a [button_to](https://api.rubyonrails.org/classes/ActionView/Helpers/UrlHelper.html#method-i-button_to) to hit the correct endpoint. Note that when we're creating a new `MailerSubscription` we pass `mailer_subscription.attributes` as params, but we're only permitting the `mailer` value in our controller.
+
+http://localhost:3000/mailer_subscriptions
+
+![Page for User to Update Their Email Preferences](public/notification_settings.png)
+
 ## Step 5: Add Unsubscribe Link to Mailer and Prevent Delivery if User has Unsubscribed
+
+1. Add shared logic to `ApplicationMailer`.
 
 ```ruby
 # app/mailers/application_mailer.rb
@@ -356,16 +374,13 @@ class ApplicationMailer < ActionMailer::Base
   before_action :set_unsubscribe_url, if: :should_unsubscribe?
   before_action :set_mailer_subscriptions_url, if: :should_unsubscribe?
 
-  # Conditionally prevent the mailer from being sent
-  # If the user is not subscribed to that mailer
   after_action :prevent_delivery_if_recipient_opted_out, if: :should_unsubscribe?
 
   default from: 'from@example.com'
   layout 'mailer'
 
   private
-  
-  # Will set mail.perform_deliveries to true or false
+
   def prevent_delivery_if_recipient_opted_out
     mail.perform_deliveries = @user.subscribed_to_mailer? self.class.to_s
   end
@@ -373,11 +388,7 @@ class ApplicationMailer < ActionMailer::Base
   def set_user
     @user = params[:user]
   end
-  
-  # We call to_sgid.to_s to ensure the the URL is unique and does not contain the user's id
-  # Otherwise a bad actor could unsubscribe any user from a mailer
 
-  # Calling self.class will return the name of the mailer
   def set_unsubscribe_url
     @unsubscribe_url = mailer_subscription_unsubcribe_url(@user.to_sgid.to_s, mailer: self.class)
   end  
@@ -386,12 +397,20 @@ class ApplicationMailer < ActionMailer::Base
     @mailer_subscriptions_url = mailer_subscriptions_url
   end
 
-  # This ensures we've passed a user to the mailer
   def should_unsubscribe?
     @user.present? && @user.respond_to?(:subscribed_to_mailer?)
   end
 end
 ```
+
+> **What's Going On Here?**
+>
+> - We add several [action mailer callbacks](https://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-callbacks) to the `ApplicationMailer` in order for this logic to be shared across all mailers.
+> - We call `prevent_delivery_if_recipient_opted_out` which will conditionally prevent the mailer from being sent if the user is not subscribed to that mailer. This is accomplished by setting mail.perform_deliveries to `true` or `false` based on the return value of `@user.subscribed_to_mailer? self.class.to_s`. Note that calling `self.class.to_s` will return the name of the mailer (i.e. MarketingMailer).
+> - We call `@user.to_sgid.to_s` to ensure the the URL is unique and does not contain the user's id. Otherwise a bad actor could unsubscribe any user from a mailer.
+> - We conditionally call these callbacks with `should_unsubscribe?` to ensures we've passed a user to the mailer. 
+
+1. Conditionally render unsubscribe links in mailer layouts.
 
 ```html+erb
 <%# app/views/layouts/mailer.html.erb %>
@@ -410,3 +429,5 @@ end
 <%= yield %>
 <%= render "shared/mailers/unsubscribe_links" if @unsubscribe_url.present? %>
 ```
+
+![Conditionally render unsubscribe links in mailer layouts.](public/notification_settings.png)

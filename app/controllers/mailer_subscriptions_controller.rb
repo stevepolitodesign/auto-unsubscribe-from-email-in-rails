@@ -20,7 +20,6 @@ class MailerSubscriptionsController < ApplicationController
   end
 
   def update
-    handle_unauthorized
     if @mailer_subscription.toggle!(:subscribed)
       redirect_to mailer_subscriptions_path, notice: "Preferences updated."
     else
