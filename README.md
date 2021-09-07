@@ -434,7 +434,7 @@ end
 <%= render "shared/mailers/unsubscribe_links" if @unsubscribe_url.present? %>
 ```
 
-![Conditionally render unsubscribe links in mailer layouts.](public/notification_settings.png)
+![Conditionally render unsubscribe links in mailer layouts.](public/mailer_body.png)
 
 ---
 
